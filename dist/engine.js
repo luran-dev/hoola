@@ -29,7 +29,22 @@ class Game{
  stop(){if(this.phase!=='draw'||score(this.player.hand)>10)return false;this.low(`${this.player.name}의 스톱`,this.turn);return true;}
  special(){const h=this.player.hand;const sum=h.reduce((s,c)=>s+c.rank,0);if(h.filter(c=>c.rank===7).length===4)return '행운의 7';if(this.phase==='draw'&&!this.player.registered&&h.length===7&&(sum<=15||sum>=83))return sum<=15?'소팡':'대팡';return null;}
  claim(){const reason=this.special();if(this.phase==='ended'||!reason)return false;this.end([this.turn],reason);return true;}
- ai(){if(this.phase==='ended')return;if(this.special()){this.claim();return;}if(this.phase==='draw'){if(score(this.player.hand)<=5){this.stop();return;}const options=this.thanksOptions();if(options.length)this.thanks(options[0].cards.map(c=>c.id));else this.draw();}if(this.phase==='ended')return;if(this.special()){this.claim();return;}let progress=true;while(progress&&this.phase==='play'){progress=false;const m=combos(this.player.hand)[0];if(m){this.meld(m.cards.map(c=>c.id));progress=true;continue;}if(this.player.registered){outer:for(const c of this.player.hand)for(let i=0;i<this.melds.length;i++)if(canAttach(this.melds[i],c)){this.attach(c.id,i);progress=true;break outer;}}}if(this.phase!=='play')return;const utility=c=>points(c)-this.player.hand.filter(x=>x.id!==c.id&&(x.rank===c.rank||(x.suit===c.suit&&[1,12].includes(Math.abs(x.rank-c.rank))))).length*4;const card=[...this.player.hand].sort((a,b)=>utility(b)-utility(a))[0];this.discard(card.id);}
+ aiStep(){
+  if(this.phase==='ended')return false;
+  if(this.special())return this.claim();
+  if(this.phase==='draw'){
+   if(score(this.player.hand)<=5)return this.stop();
+   const option=this.thanksOptions()[0];
+   return option?this.thanks(option.cards.map(c=>c.id)):this.draw();
+  }
+  const meld=combos(this.player.hand)[0];
+  if(meld)return this.meld(meld.cards.map(c=>c.id));
+  if(this.player.registered)for(const c of this.player.hand)for(let i=0;i<this.melds.length;i++)if(canAttach(this.melds[i],c))return this.attach(c.id,i);
+  const utility=c=>points(c)-this.player.hand.filter(x=>x.id!==c.id&&(x.rank===c.rank||(x.suit===c.suit&&[1,12].includes(Math.abs(x.rank-c.rank))))).length*4;
+  return this.discard([...this.player.hand].sort((a,b)=>utility(b)-utility(a))[0].id);
+ }
+ ai(){const turn=this.turn;while(this.phase!=='ended'&&this.turn===turn){if(!this.aiStep())break;}}
+
 }
 const api={Game,kind,ordered,canAttach,combos,score,label,suits};if(typeof module!=='undefined')module.exports=api;else root.Hoola=api;
 })(typeof window!=='undefined'?window:globalThis);
