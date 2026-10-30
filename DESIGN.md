@@ -1,0 +1,2 @@
+# Hoola Card Club
+A quiet Korean card room: dark pine background (#102a25), felt table (#20483b), warm paper cards (#fffaf0), lime actions (#d5ef8b), muted sage text (#b7c8bb). Serif HOOLA wordmark, system Korean UI. Desktop table with three opponents, central piles and shared melds, bottom player hand. Mobile keeps all actions visible and wraps cards. Tokens define 8/12/20/32 spacing; buttons 44px minimum; 160ms selection movement with reduced-motion override. Every card has textual accessible name, keyboard focus, selected state. No external dependencies or assets.
